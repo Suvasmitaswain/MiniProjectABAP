@@ -1,0 +1,114 @@
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9000  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_9000 INPUT.
+  CASE sy-ucomm.
+    WHEN gc_signup.
+      CALL SCREEN 9001.
+    WHEN gc_signin.
+      CALL SCREEN 9002.
+    WHEN gc_back OR gc_cancel.
+      LEAVE TO SCREEN 0.
+    WHEN gc_exit.
+      LEAVE PROGRAM .
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDMODULE.
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9001  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_9001 INPUT.
+  CASE sy-ucomm.
+    WHEN gc_submit.
+      PERFORM get_submit.
+    WHEN gc_cancel.
+      LEAVE TO SCREEN 9000.
+    WHEN gc_reset.
+      CLEAR : wa_signup-username,
+              wa_signup-password1,
+              wa_signup-password2,
+              zsignup-gender,
+              zsignup-dob,
+              wa_signup-fullname.
+    WHEN gc_signin.
+      CALL SCREEN 9002.
+    WHEN gc_back OR gc_cancel.
+      LEAVE TO SCREEN 9000.
+    WHEN gc_exit.
+      LEAVE PROGRAM .
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDMODULE.
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9002  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_9002 INPUT.
+  CASE sy-ucomm.
+    WHEN gc_login.
+      PERFORM get_login.
+    WHEN gc_reset.
+      CLEAR:wa_signup-username,
+            wa_signup-password1.
+    WHEN gc_signup.
+      LEAVE TO SCREEN 9001.
+    WHEN gc_back OR gc_cancel.
+      LEAVE TO SCREEN 9000.
+    WHEN gc_exit.
+      LEAVE PROGRAM .
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDMODULE.
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9003  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_9003 INPUT.
+  CASE sy-ucomm.
+    WHEN gc_update.
+      CLEAR: zsignup-gender,
+             zsignup-dob,
+             zsignup-fullname.
+      CALL SCREEN 9004.
+    WHEN gc_exit.
+      LEAVE PROGRAM .
+    WHEN gc_back OR gc_cancel.
+      LEAVE TO SCREEN 9002.
+    WHEN gc_exit.
+      LEAVE PROGRAM .
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDMODULE.
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9004  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_9004 INPUT.
+  CASE sy-ucomm.
+    WHEN gc_getdetails.
+      PERFORM get_values.
+    WHEN gc_back OR gc_cancel .
+      LEAVE TO SCREEN 9000.
+    WHEN gc_exit.
+      LEAVE PROGRAM .
+    WHEN OTHERS.
+  ENDCASE.
+
+
+ENDMODULE. 
+

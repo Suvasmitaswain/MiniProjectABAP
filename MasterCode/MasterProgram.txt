@@ -1,0 +1,136 @@
+*&---------------------------------------------------------------------*
+*& Module Pool       ZPROJECT_01
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+PROGRAM zproject_01.
+
+TABLES : zsignup .
+
+DATA : it_signup TYPE TABLE OF zsignup,
+       wa_signup TYPE zsignup.
+
+CONSTANTS : gc_cancel     TYPE string VALUE 'CANCEL',
+            gc_back       TYPE string VALUE 'BACK',
+            gc_exit       TYPE string VALUE 'EXIT',
+            gc_submit     TYPE string VALUE 'SUBMIT',
+            gc_reset      TYPE string VALUE 'RESET',
+            gc_update     TYPE string VALUE 'UPDATE',
+            gc_signin     TYPE string VALUE 'SIGNIN',
+            gc_signup     TYPE string VALUE 'SIGNUP',
+            gc_login      TYPE string VALUE 'LOGIN',
+            gc_getdetails TYPE string VALUE 'GETDETAILS'.
+
+*&---------------------------------------------------------------------*
+*&      Form  GET_VALUES
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM get_values .
+  TYPES : BEGIN OF lty_zsignup,
+            username TYPE zsignup-username,
+            gender   TYPE zsignup-gender,
+            dob      TYPE zsignup-dob,
+            fullname TYPE zsignup-fullname,
+          END OF lty_zsignup.
+
+  DATA : lwa_signup TYPE lty_zsignup.
+  IF zsignup-username IS NOT INITIAL .
+    SELECT SINGLE username
+           gender
+           dob
+           fullname FROM zsignup INTO lwa_signup WHERE username = zsignup-username.
+    IF sy-subrc = 0.
+      zsignup-gender = lwa_signup-gender.
+      zsignup-dob = lwa_signup-dob.
+      zsignup-fullname = lwa_signup-fullname.
+    ELSE.
+      MESSAGE e000(zerror_01).
+
+    ENDIF.
+  ENDIF .
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Module  PUT_VALIDATION_DATA  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE put_validation_data INPUT.
+  DATA : lv_test TYPE zsignup-username.
+  SELECT SINGLE username FROM zsignup INTO lv_test WHERE username = zsignup-username.
+  IF sy-subrc <> 0.
+    MESSAGE e001(zerror_01) WITH zsignup-username.
+  ENDIF.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Form  GET_LOGIN
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM get_login .
+  TYPES: BEGIN OF lty_zsignup,
+           username  TYPE zsignup-username,
+           password1 TYPE zsignup-password1,
+         END OF lty_zsignup.
+  DATA : lt_zsignup TYPE TABLE OF lty_zsignup.
+  SELECT username
+         password1 FROM zsignup INTO TABLE lt_zsignup WHERE username = wa_signup-username AND password1 = wa_signup-password1.
+  IF sy-subrc <> 0.
+    MESSAGE i002(zerror_01).
+  ELSE .
+    CLEAR : wa_signup-password1,
+            wa_signup-username.
+    CALL SCREEN 9003.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Form  GET_SUBMIT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM get_submit .
+  TYPES: BEGIN OF lty_signup,
+           username  TYPE zsignup-username,
+           password1 TYPE zsignup-password1,
+           password2 TYPE zsignup-password2,
+           gender    TYPE zsignup-gender,
+           dob       TYPE zsignup-dob,
+           fullname  TYPE zsignup-fullname,
+         END OF lty_signup.
+  DATA : lt_signup TYPE TABLE OF lty_signup.
+  SELECT username
+         password1
+         password2
+         gender
+         dob
+         fullname FROM zsignup INTO TABLE lt_signup WHERE username = wa_signup-username AND password1 = wa_signup-password1 AND password2 = wa_signup-password2
+         AND gender = zsignup-gender AND dob = zsignup-dob AND fullname = wa_signup-fullname.
+  IF sy-subrc EQ 0.
+    MESSAGE i003(zerror_01).
+    LEAVE TO SCREEN 0.
+  ELSE .
+    wa_signup-username  = wa_signup-username.
+    wa_signup-password1 = wa_signup-password1.
+    wa_signup-password2 = wa_signup-password2.
+    wa_signup-gender    = zsignup-gender.
+    wa_signup-dob       = zsignup-dob.
+    wa_signup-fullname  = wa_signup-fullname.
+    INSERT INTO zsignup VALUES wa_signup.
+    CLEAR : wa_signup.
+    CALL SCREEN 9003.
+  ENDIF.
+
+ENDFORM.
